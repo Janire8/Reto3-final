@@ -5,11 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Tripulantes;
 use Illuminate\Http\RedirectResponse;
+use App\Http\Controllers\Controller;
+use Spatie\Permission\Models;
+use Illuminate\Support\Facades\Route;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Routing\ControllerMiddlewareOptions;
 
 class TripulantesController extends Controller
 {
 
-     // Mostrar todos los tripulantes
+    // Mostrar todos los tripulantes
     public function index()
     {
         // Obtener todos los tripulantes de la base de datos
@@ -21,7 +26,7 @@ class TripulantesController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        
+     if(auth()->user()->hasRole('editor')){  
  
         $tripulante = new Tripulantes;
  
@@ -35,7 +40,11 @@ class TripulantesController extends Controller
         $tripulante->save();
  
         return redirect()->route('tripulantes.index')->with('success', 'Tripulante creado correctamente');
-    }
+      } else{
+
+        abort(403);
+
+      } }
 
     //Actualizar los datos
     public function update(Request $request, $id)
@@ -47,7 +56,7 @@ class TripulantesController extends Controller
             'fecha_incorporacion',
             'fecha_baja',
             'created_at',
-            'updated_at',
+            'updated_at'
         ]);
 
         //Buscar registro en la BBDD
@@ -55,16 +64,21 @@ class TripulantesController extends Controller
         $tripulante->update($request->all());
 
         return redirect()->route('tripulantes.index')
-            ->with('success', 'Post updated successfully.');
+        ->with('success', 'Post updated successfully.');
     }
 
     //Editar los datos en el formulario
-    public function edit($id) {
+    public function edit(Request $request,$id) {
+
+        if(auth()->user()->hasRole('editor')){  
+
         //Obtener todos los tripulantes de la BBDD
         $tripulante = Tripulantes::find($id);
         //Pasar los tripulantes a la vista
-        return view('tripulantes.edit', compact('tripulantes'));
-    }
+        return view('tripulantes.edit', compact('tripulante'));
+    }else{
+        abort(403); // Si no tiene permiso, mostrar un error 403
+    }}
     
 
      public function create()
@@ -72,6 +86,20 @@ class TripulantesController extends Controller
  
          return view('tripulantes.create');
      }
+
+     public function destroy(Tripulantes $tripulante)
+     {
+         $tripulante->delete();
+ 
+         return redirect()->route('tripulantes.index')->with('success', 'Tripulante eliminado correctamente');
+     }
+
+
+     public function show($id) {
+        $tripulante = Tripulantes::find($id);
+        return view('tripulantes.show', compact('tripulante'));
+     }
+
 
 
 
@@ -109,17 +137,5 @@ class TripulantesController extends Controller
     //  }
  
      // Eliminar un tripulante
-     public function destroy(Tripulantes $tripulante)
-     {
-         $tripulante->delete();
- 
-         return redirect()->route('tripulantes.index')->with('success', 'Tripulante eliminado correctamente');
-     }
-
-
-     public function show($id) {
-        $tripulante = Tripulantes::find($id);
-        return view('tripulantes.show', compact('tripulante'));
-     }
-
+     
 }

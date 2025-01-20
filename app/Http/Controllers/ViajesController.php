@@ -21,7 +21,8 @@ class ViajesController extends Controller
     }
 
     public function store(Request $request): RedirectResponse
-    {
+{
+    try {
         
  
         $viaje = new viajes;
@@ -33,7 +34,16 @@ class ViajesController extends Controller
  
         $viaje->save();
  
-        return redirect()->route('viajes.index')->with('success', 'viaje creado correctamente');
+  // Mensaje de éxito
+        return redirect()
+            ->route('viajes.create')
+            ->with('success', 'Viaje creado correctamente.');
+    } catch (\Exception $e) {
+            // Mensaje de error
+            return redirect()
+                ->route('viajes.create')
+                ->with('error', 'No fue posible crear el viaje. Inténtalo nuevamente.');
+        }
     }
 
     public function create()
@@ -71,7 +81,7 @@ class ViajesController extends Controller
          $viaje = Viajes::find($id);
          $viaje->update($request->all());
  
-         return redirect()->route('medicos.index')
+         return redirect()->route('viajes.index')
              ->with('success', 'Post updated successfully.');
      }
  
@@ -82,5 +92,8 @@ class ViajesController extends Controller
          return view('viajes.edit', compact('viaje'));
      }
 
-
+     public function show($id) {
+        $viaje = Viajes::find($id);
+        return view('viajes.show', compact('viaje'));
+     }
 }

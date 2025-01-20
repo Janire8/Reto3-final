@@ -31,21 +31,32 @@ class MedicosController extends Controller
 
     //Añade un médico nuevo
     public function store(Request $request): RedirectResponse
-     {
-         
+{
+
+    try {     
   
          $medico = new Medicos;
   
          $medico->nombre = $request->nombre;
          $medico->apellido = $request->apellido;
-         $medico->rol = $request->rol;
          $medico->fecha_incorporacion = $request->fecha_incorporacion;
          $medico->fecha_baja = $request->fecha_baja;
   
          $medico->save();
         //redirige al index
-         return redirect()->route('medicos.index')->with('success', 'Médico creado correctamente');
-     }
+        return redirect()
+                ->route('medicos.create')
+                ->with('success', 'Medico creado correctamente.');
+        } catch (\Exception $e) {
+            // Mensaje de error
+            return redirect()
+                ->route('medicos.create')
+                ->with('error', 'No fue posible crear el medico. Inténtalo nuevamente.');
+        }
+
+
+
+}
 
     public function create()
      {
@@ -59,11 +70,10 @@ class MedicosController extends Controller
         $request->validate([
             'nombre',
             'apellidos',
-            'rol' ,
             'fecha_incorporacion',
             'fecha_baja',
             'created_at',
-            'updated_at',
+            'updated_at'
         ]);
 
         //Buscar registro en la BBDD
@@ -71,14 +81,17 @@ class MedicosController extends Controller
         $medico->update($request->all());
 
         return redirect()->route('medicos.index')
-            ->with('success', 'Post updated successfully.');
+        ->with('success', 'Post updated successfully.');
     }
 
-    public function edit($id) {
+    public function edit(Request $request,$id) {
         $medico = Medicos::find($id);
         //Devuelve la vista medico. Compact: Crea un array con los datos de 
         //medico y los pasa a la vista para mostrarlos en el form a editar
         return view('medicos.edit', compact('medico'));
     }
-
+    public function show($id) {
+        $medico = Medicos::find($id);
+        return view('medicos.show', compact('medico'));
+     }
 }

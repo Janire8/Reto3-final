@@ -26,7 +26,9 @@
                     <td>{{ $viaje->destino }}</td>
                     <td>{{ $viaje->fechaHora }}</td>
                     <td>
-                        <a href="{{ route('viajes.update', $viaje->id) }}">Editar</a>
+                        <a href="{{ route('viajes.edit', $viaje->id) }}">Editar</a>
+                        <a href="{{ route('viajes.show', $viaje->id) }}">Seleccionar</a>
+
                         <form action="{{ route('viajes.destroy', $viaje->id) }}" method="POST" style="display:inline;"> 
                             @csrf
                             @method('DELETE')
@@ -43,5 +45,5 @@
         <button type="submit">Añadir Nuevo</button>
     </form>
 
-</body>+
+</body>
 </html>
